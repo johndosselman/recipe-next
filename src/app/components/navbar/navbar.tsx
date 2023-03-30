@@ -1,5 +1,4 @@
-import React from "react";
-import styles from "./page.module.css";
+import styles from "./navbar.module.css";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -7,7 +6,6 @@ export default function Navbar() {
     <div className={styles.navbar}>
       <ul>
         <li>
-          {" "}
           <Link href="/">Home</Link>
         </li>
         <li>
