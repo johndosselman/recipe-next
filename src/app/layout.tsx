@@ -1,5 +1,7 @@
+"use client";
 import "./globals.css";
 import Navbar from "./navbar";
+import { AuthContextProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "Recipes",
@@ -14,8 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        {children}
+        <AuthContextProvider>{children}</AuthContextProvider>
       </body>
     </html>
   );
