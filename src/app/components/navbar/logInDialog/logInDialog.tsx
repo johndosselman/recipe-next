@@ -47,42 +47,46 @@ export default function LogInDialog(props: logInDialogProps) {
 
   return (
     <Dialog onClose={handleClose} open={open}>
-      <DialogTitle sx={{ fontSize: "2rem" }}>Let's get cooking.</DialogTitle>
-      <DialogContent>
-        <Divider>Sign in with provider</Divider>
-        <IconButton sx={{ margin: "1rem" }} onClick={handleGoogleSignIn}>
-          <GoogleIcon />
-        </IconButton>
+      <form onSubmit={handleSubmit}>
+        <DialogTitle sx={{ fontSize: "2rem" }}>
+          Let&apos;s get cooking.
+        </DialogTitle>
+        <DialogContent>
+          <Divider>Sign in with provider</Divider>
+          <IconButton sx={{ margin: "1rem" }} onClick={handleGoogleSignIn}>
+            <GoogleIcon />
+          </IconButton>
 
-        <Divider>Sign in with Email</Divider>
+          <Divider>Sign in with Email</Divider>
 
-        <TextField
-          onChange={(e) => setEmail(e.target.value)}
-          id="email-field"
-          label="Email Address"
-          type="email"
-          variant="standard"
-          required
-        />
-        <TextField
-          onChange={(e) => setPassword(e.target.value)}
-          id="password-field"
-          label="Password"
-          type="password"
-          variant="standard"
-          required
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Log In</Button>
-        <Button onClick={handleClose}>Cancel</Button>
-      </DialogActions>
-      <DialogContent>
-        <Divider />
-        <Typography>
-          New? <Link href="signup">Create an account</Link>
-        </Typography>
-      </DialogContent>
+          <TextField
+            onChange={(e) => setEmail(e.target.value)}
+            id="email-field"
+            label="Email Address"
+            type="email"
+            variant="standard"
+            required
+          />
+          <TextField
+            onChange={(e) => setPassword(e.target.value)}
+            id="password-field"
+            label="Password"
+            type="password"
+            variant="standard"
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Log In</Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </DialogActions>
+        <DialogContent>
+          <Divider />
+          <Typography>
+            New? <Link href="signup">Create an account</Link>
+          </Typography>
+        </DialogContent>
+      </form>
     </Dialog>
   );
 }
