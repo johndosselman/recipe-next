@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { auth } from "../firebase/config";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
 
 type AuthContextType = { user: FirebaseUser | null };
 
@@ -29,7 +31,13 @@ export const AuthContextProvider = ({ children }: Props) => {
 
   return (
     <AuthContext.Provider value={{ user }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress />
+        </Box>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

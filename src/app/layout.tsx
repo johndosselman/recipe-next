@@ -1,4 +1,6 @@
 "use client";
+import { ThemeContextProvider } from "@/context/themeContext";
+import Navbar from "./components/navbar/navbar";
 import "./globals.css";
 import { AuthContextProvider } from "@/context/AuthContext";
 
@@ -10,7 +12,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthContextProvider>{children}</AuthContextProvider>
+        <ThemeContextProvider>
+          <AuthContextProvider>
+            <Navbar></Navbar>
+            {children}
+          </AuthContextProvider>
+        </ThemeContextProvider>
       </body>
     </html>
   );

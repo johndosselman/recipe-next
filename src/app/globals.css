@@ -3,24 +3,3 @@
   padding: 0;
   outline: none;
 }
-
-body {
-  background-color: rgb(49, 49, 49);
-  color: white;
-  height: 100vh;
-  height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  text-align: center;
-}
-
-a {
-  color: white;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
