@@ -30,14 +30,6 @@ export const AuthContextProvider = ({ children }: Props) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>
-      {loading ? (
-        <Box sx={{ width: "100%" }}>
-          <LinearProgress />
-        </Box>
-      ) : (
-        children
-      )}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
   );
 };

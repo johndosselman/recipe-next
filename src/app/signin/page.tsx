@@ -9,8 +9,8 @@ export default function Page() {
   const [password, setPassword] = React.useState("");
   const router = useRouter();
 
-  const handleForm = async (event: { preventDefault: () => void }) => {
-    event.preventDefault();
+  const handleForm = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
 
     const { result, error } = await signInEmail(email, password);
 

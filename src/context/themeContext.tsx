@@ -1,7 +1,8 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, forwardRef, useState } from "react";
 import { createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
+import NextLink from "next/link";
 
 interface ThemeContextType {
   theme: typeof lightTheme | typeof darkTheme;
