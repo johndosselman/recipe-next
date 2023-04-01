@@ -10,24 +10,13 @@ export default function Home() {
   const credential = useContext(AuthContext);
   const router = useRouter();
 
-  const signOut = async () => {
-    await handleSignOut();
-
-    return router.push("/");
-  };
   return (
     <main className={styles.main}>
       <h1>Home</h1>
-      {credential.user ? (
+      {credential.user && (
         <div>
           <h3>Welcome, {credential.user.displayName}</h3>
           <Link href="/new-recipe">Add New Recipe</Link>
-          <button onClick={signOut}>Log out</button>
-        </div>
-      ) : (
-        <div>
-          <Link href="/signup">Sign Up</Link>
-          <Link href="/signin">Sign In</Link>
         </div>
       )}
     </main>
