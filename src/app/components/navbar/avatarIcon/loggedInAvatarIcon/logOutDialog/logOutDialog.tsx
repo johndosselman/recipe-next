@@ -17,10 +17,7 @@ export default function LogOutDialog(props: logOutDialogProps) {
 
   const handleLogOut = async () => {
     handleClose;
-    const { result, error } = await handleSignOut();
-    if (error) {
-      return console.log(error);
-    }
+    await handleSignOut();
     return router.push("/");
   };
 

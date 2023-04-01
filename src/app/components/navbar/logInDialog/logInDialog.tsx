@@ -13,7 +13,7 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import signInEmail from "@/auth/signInEmail";
 import signInGoogle from "@/auth/signInGoogle";
 import signInFacebook from "@/auth/signInFacebook";
@@ -30,14 +30,40 @@ export default function LogInDialog(props: logInDialogProps) {
   const { open, handleClose, handleOpenSignUpDialog } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [emailHelper, setEmailHelper] = useState(" ");
+  const [passwordHelper, setPasswordHelper] = useState(" ");
   const router = useRouter();
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+  const handleEmailInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmailError(false);
+    setEmailHelper(" ");
+    setEmail(e.target.value);
+  };
+  const handlePasswordInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setPasswordError(false);
+    setPasswordHelper(" ");
+    setPassword(e.target.value);
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { result, error } = await signInEmail(email, password);
-    if (error) {
-      console.log(error);
+    const result = await signInEmail(email, password);
+    if (result) {
+      if (result === "auth/invalid-email") {
+        setEmailError(true);
+        setEmailHelper("Invalid Email");
+      } else if (result === "auth/wrong-password") {
+        setPasswordError(true);
+        setPasswordHelper("Wrong password");
+      } else if (result === "auth/user-not-found") {
+        setEmailError(true);
+        setEmailHelper("Account not found");
+      } else console.log(result);
+      return;
     }
+
     return router.push("/");
   };
 
@@ -95,24 +121,28 @@ export default function LogInDialog(props: logInDialogProps) {
           <Divider>Sign in with Email</Divider>
 
           <TextField
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailInput}
             id="email-field"
             label="Email Address"
             type="email"
             variant="standard"
+            error={emailError}
+            helperText={emailHelper}
             required
           />
           <TextField
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordInput}
             id="password-field"
             label="Password"
             type="password"
             variant="standard"
+            error={passwordError}
+            helperText={passwordHelper}
             required
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleSubmit}>Log In</Button>
+          <Button type="submit">Log In</Button>
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
         <DialogContent>

@@ -1,4 +1,4 @@
-import { signInWithPopup, GithubAuthProvider } from "firebase/auth";
+import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase/config";
 
 const provider = new GithubAuthProvider();

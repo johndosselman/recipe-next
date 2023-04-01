@@ -1,14 +1,15 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/config";
+import { FirebaseError } from "firebase/app";
 
 export default async function signInEmail(email: string, password: string) {
-  let result = null,
-    error = null;
   try {
-    result = await signInWithEmailAndPassword(auth, email, password);
-  } catch (e) {
-    error = e;
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    if (error instanceof FirebaseError) {
+      return error.code;
+    } else {
+      console.log(error);
+    }
   }
-
-  return { result, error };
 }
