@@ -11,11 +11,8 @@ export default function Home() {
   const router = useRouter();
 
   const signOut = async () => {
-    const { result, error } = await handleSignOut();
-    if (error) {
-      return console.log(error);
-    }
-    console.log(credential);
+    await handleSignOut();
+
     return router.push("/");
   };
   return (
