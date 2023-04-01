@@ -9,20 +9,25 @@ import Divider from "@mui/material/Divider";
 import TextField from "@mui/material/TextField";
 import { useRouter } from "next/navigation";
 import GoogleIcon from "@mui/icons-material/Google";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import signInEmail from "@/auth/signInEmail";
 import signInGoogle from "@/auth/signInGoogle";
+import signInFacebook from "@/auth/signInFacebook";
+import signInGithub from "@/auth/signInGithub";
 import Link from "next/link";
 
 export interface logInDialogProps {
   open: boolean;
   handleClose: () => void;
+  handleOpenSignUpDialog: () => void;
 }
 
 export default function LogInDialog(props: logInDialogProps) {
-  const { open, handleClose } = props;
+  const { open, handleClose, handleOpenSignUpDialog } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -42,19 +47,49 @@ export default function LogInDialog(props: logInDialogProps) {
       return console.log(error);
     }
     console.log(result);
+    handleClose();
     return router.push("/");
+  };
+  const handleFacebookSignIn = async () => {
+    const { result, error } = await signInFacebook();
+    if (error) {
+      return console.log(error);
+    }
+    console.log(result);
+    handleClose();
+    return router.push("/");
+  };
+  const handleGithubSignIn = async () => {
+    const { result, error } = await signInGithub();
+    if (error) {
+      return console.log(error);
+    }
+    console.log(result);
+    handleClose();
+    return router.push("/");
+  };
+
+  const switchToSignUp = () => {
+    handleClose();
+    handleOpenSignUpDialog();
   };
 
   return (
     <Dialog onClose={handleClose} open={open}>
       <form onSubmit={handleSubmit}>
-        <DialogTitle sx={{ fontSize: "2rem" }}>
+        <DialogTitle sx={{ fontSize: "1.5rem" }}>
           Let&apos;s get cooking.
         </DialogTitle>
         <DialogContent>
           <Divider>Sign in with provider</Divider>
           <IconButton sx={{ margin: "1rem" }} onClick={handleGoogleSignIn}>
             <GoogleIcon />
+          </IconButton>
+          <IconButton sx={{ margin: "1rem" }} onClick={handleFacebookSignIn}>
+            <FacebookIcon />
+          </IconButton>
+          <IconButton sx={{ margin: "1rem" }} onClick={handleGithubSignIn}>
+            <GitHubIcon />
           </IconButton>
 
           <Divider>Sign in with Email</Divider>
@@ -77,14 +112,13 @@ export default function LogInDialog(props: logInDialogProps) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Log In</Button>
+          <Button onClick={handleSubmit}>Log In</Button>
           <Button onClick={handleClose}>Cancel</Button>
         </DialogActions>
         <DialogContent>
-          <Divider />
-          <Typography>
-            New? <Link href="signup">Create an account</Link>
-          </Typography>
+          <Divider>New to App Name?</Divider>
+
+          <Button onClick={switchToSignUp}>Create an Account</Button>
         </DialogContent>
       </form>
     </Dialog>
