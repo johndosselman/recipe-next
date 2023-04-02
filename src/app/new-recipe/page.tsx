@@ -17,11 +17,25 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableItem from "../components/sortableItem/sortableItem";
-import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import NonSSRWrapper from "../components/nonSSRWrapper";
 import Container from "@mui/material/Container";
 
 export default function Page() {
+  const mouseSensor = useSensor(MouseSensor);
+  const touchSensor = useSensor(TouchSensor);
+  const keyboardSensor = useSensor(KeyboardSensor);
+
+  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
   const credential = useContext(AuthContext);
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
@@ -86,6 +100,7 @@ export default function Page() {
           </Stepper>
 
           <DndContext
+            sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
