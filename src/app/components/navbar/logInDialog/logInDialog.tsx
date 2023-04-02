@@ -19,6 +19,7 @@ import signInGoogle from "@/auth/signInGoogle";
 import signInFacebook from "@/auth/signInFacebook";
 import signInGithub from "@/auth/signInGithub";
 import Link from "next/link";
+import Stack from "@mui/material/Stack";
 
 export interface logInDialogProps {
   open: boolean;
@@ -103,22 +104,23 @@ export default function LogInDialog(props: logInDialogProps) {
   return (
     <Dialog onClose={handleClose} open={open}>
       <form onSubmit={handleSubmit}>
-        <DialogTitle sx={{ fontSize: "1.5rem" }}>
+        <DialogTitle my={3} align="center" sx={{ fontSize: "1.5rem" }}>
           Let&apos;s get cooking.
         </DialogTitle>
         <DialogContent>
           <Divider>Sign in with provider</Divider>
-          <IconButton sx={{ margin: "1rem" }} onClick={handleGoogleSignIn}>
-            <GoogleIcon />
-          </IconButton>
-          <IconButton sx={{ margin: "1rem" }} onClick={handleFacebookSignIn}>
-            <FacebookIcon />
-          </IconButton>
-          <IconButton sx={{ margin: "1rem" }} onClick={handleGithubSignIn}>
-            <GitHubIcon />
-          </IconButton>
-
-          <Divider>Sign in with Email</Divider>
+          <Stack direction={"row"} justifyContent={"space-around"} my={3}>
+            <IconButton onClick={handleGoogleSignIn}>
+              <GoogleIcon />
+            </IconButton>
+            <IconButton onClick={handleFacebookSignIn}>
+              <FacebookIcon />
+            </IconButton>
+            <IconButton onClick={handleGithubSignIn}>
+              <GitHubIcon />
+            </IconButton>
+          </Stack>
+          <Divider>or Email</Divider>
 
           <TextField
             onChange={handleEmailInput}
@@ -128,6 +130,7 @@ export default function LogInDialog(props: logInDialogProps) {
             variant="standard"
             error={emailError}
             helperText={emailHelper}
+            fullWidth
             required
           />
           <TextField
@@ -138,17 +141,18 @@ export default function LogInDialog(props: logInDialogProps) {
             variant="standard"
             error={passwordError}
             helperText={passwordHelper}
+            fullWidth
             required
           />
-        </DialogContent>
-        <DialogActions>
-          <Button type="submit">Log In</Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </DialogActions>
-        <DialogContent>
-          <Divider>New to App Name?</Divider>
+          <Stack direction={"row"} justifyContent={"space-around"} mb={4}>
+            <Button type="submit">Log In</Button>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Stack>
 
-          <Button onClick={switchToSignUp}>Create an Account</Button>
+          <Divider>New to App Name?</Divider>
+          <Box textAlign={"center"} mt={2}>
+            <Button onClick={switchToSignUp}>Create an Account</Button>
+          </Box>
         </DialogContent>
       </form>
     </Dialog>
