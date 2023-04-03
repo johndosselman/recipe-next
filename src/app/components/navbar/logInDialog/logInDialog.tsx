@@ -116,9 +116,9 @@ export default function LogInDialog(props: logInDialogProps) {
             <IconButton onClick={handleFacebookSignIn}>
               <FacebookIcon />
             </IconButton>
-            <IconButton onClick={handleGithubSignIn}>
+            <Button onClick={handleGithubSignIn}>
               <GitHubIcon />
-            </IconButton>
+            </Button>
           </Stack>
           <Divider>or Email</Divider>
 

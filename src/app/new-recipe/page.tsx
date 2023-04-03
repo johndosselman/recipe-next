@@ -1,12 +1,18 @@
 "use client";
 import { AuthContext } from "@/context/AuthContext";
-import { db } from "@/firebase/config";
 import AddRecipe from "@/firestore/addRecipe";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import TextField from "@mui/material/TextField";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
@@ -27,33 +33,27 @@ import {
   closestCenter,
   useSensor,
   useSensors,
-  MeasuringStrategy,
 } from "@dnd-kit/core";
-import Container from "@mui/material/Container";
+
 import {
-  restrictToFirstScrollableAncestor,
   restrictToParentElement,
   restrictToVerticalAxis,
 } from "@dnd-kit/modifiers";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
-import NonSSRWrapper from "../components/nonSSRWrapper";
 import Divider from "@mui/material/Divider";
+import {
+  direction,
+  identifiable,
+  ingredient,
+  note,
+} from "../interfaces/interfaces";
+import Box from "@mui/material/Box";
+import spacing from "@mui/system";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
 
 export default function Page() {
-  const ingredientList = [
-    { id: 10, ingredient: "steak" },
-    { id: 11, ingredient: "salmon" },
-    { id: 12, ingredient: "egg" },
-  ];
-
-  const directionsList = [
-    { id: 0, text: "" },
-    { id: 1, text: "" },
-  ];
-
   const mouseSensor = useSensor(MouseSensor);
   const touchSensor = useSensor(TouchSensor);
   const keyboardSensor = useSensor(KeyboardSensor);
@@ -61,35 +61,62 @@ export default function Page() {
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
   const credential = useContext(AuthContext);
   const router = useRouter();
-  const [activeStep, setActiveStep] = useState(0);
   const [recipeName, setRecipeName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
-  const [ingredients, setIngredients] = useState(ingredientList);
-  const [directions, setDirections] = useState(directionsList);
-  const [directionId, setDirectionId] = useState<number>(10);
+  const [ingredients, setIngredients] = useState<ingredient[]>([
+    { id: 1, ingredientName: "" },
+  ]);
+  const [directions, setDirections] = useState<direction[]>([
+    { id: 2, directionText: "" },
+  ]);
+  const [notes, setNotes] = useState<note[]>([]);
+  const [uniqueId, setUniqueId] = useState<number>(3);
+  const [servings, setServings] = useState("");
+  const [cookTime, setCookTime] = useState("");
+  // reroute user to home if they lack the credentials
   useEffect(() => {
     if (credential.user === null || !credential.user.emailVerified) {
       router.push("/");
     }
   }, [credential]);
 
-  const handleAddDirection = () => {
-    const newDirection = { id: directionId, text: "" };
-    setDirections([...directions, newDirection]);
-    setDirectionId(directionId + 1);
-  };
-
+  // submit form
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     await AddRecipe(recipeName);
   };
 
-  function handleDragEndIngredient(event: DragEndEvent) {
+  // add ingredient to the ingredients list
+  const handleAddIngredient = () => {
+    const newIngredient: ingredient = { id: uniqueId, ingredientName: "" };
+    setIngredients([...ingredients, newIngredient]);
+    setUniqueId(uniqueId + 1);
+  };
+
+  // add direction to the directions list
+  const handleAddDirection = () => {
+    const newDirection: direction = { id: uniqueId, directionText: "" };
+    setDirections([...directions, newDirection]);
+    setUniqueId(uniqueId + 1);
+  };
+
+  // add note to the directions list
+  const handleAddNote = () => {
+    const newNote: note = { id: uniqueId, noteText: "" };
+    setNotes([...notes, newNote]);
+    setUniqueId(uniqueId + 1);
+  };
+
+  // item reordering after dragging
+  function reorderItems<T extends identifiable>(
+    event: DragEndEvent,
+    setArray: Dispatch<SetStateAction<any>>
+  ) {
     const { active, over } = event;
-    console.log(active);
-    if (active.id !== over?.id) {
-      setIngredients((items) => {
+    if (active.id !== over?.id && over?.id) {
+      setArray((items: T[]) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over?.id);
         return arrayMove(items, oldIndex, newIndex);
@@ -97,118 +124,199 @@ export default function Page() {
     }
   }
 
-  function handleDragEndDirection(event: DragEndEvent) {
-    const { active, over } = event;
-    console.log(active);
-    if (active.id !== over?.id) {
-      setDirections((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over?.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  }
+  const handleIngredientsDragEnd = (e: DragEndEvent) => {
+    reorderItems(e, setIngredients);
+  };
 
-  function handleRemoveDirection(id: number) {
-    setDirections((direction) =>
-      directions.filter((direction) => direction.id !== id)
-    );
-  }
+  const handleDirectionsDragEnd = (e: DragEndEvent) => {
+    reorderItems(e, setDirections);
+  };
+
+  const handleNotesDragEnd = (e: DragEndEvent) => {
+    reorderItems(e, setNotes);
+  };
+
+  // handle removing an item from a list
+  const handleRemove = <T extends identifiable>(
+    setArray: Dispatch<SetStateAction<any>>,
+    id: number
+  ) => {
+    setArray((array: T[]) => array.filter((item) => item.id !== id));
+  };
 
   return (
     <>
       {credential.user?.emailVerified && (
         <>
-          <Typography variant="h1">New Recipe</Typography>
-          <Link href="/">Home</Link>
+          <Box
+            textAlign={"center"}
+            display={"flex"}
+            flexDirection={"column"}
+            rowGap={3}
+            mx={2}
+          >
+            <Typography variant="h3" my={3}>
+              New Recipe
+            </Typography>
+            <Link href="/">Home</Link>
+            <Divider />
+            <Paper sx={{ p: 1 }}>
+              <Stack rowGap={2}>
+                <Paper sx={{ p: 1 }} elevation={3}>
+                  <TextField
+                    InputProps={{ style: { fontSize: "1.5em" } }}
+                    onChange={(e) => setRecipeName(e.target.value)}
+                    id="title-field"
+                    label="Recipe Title"
+                    variant="standard"
+                    fullWidth
+                    required
+                  />
+                </Paper>
 
-          <Stepper orientation="vertical" activeStep={activeStep} nonLinear>
-            <Step key={0} onClick={() => setActiveStep(0)}>
-              <StepLabel>
-                <Divider>Recipe Title</Divider>
-              </StepLabel>
-              <StepContent TransitionProps={{ unmountOnExit: false }}>
-                <TextField
-                  onChange={(e) => setRecipeName(e.target.value)}
-                  id="title-field"
-                  label="Title"
-                  variant="outlined"
-                  fullWidth
-                  required
-                ></TextField>
-              </StepContent>
-            </Step>
-            <Step key={1} onClick={() => setActiveStep(1)}>
-              <StepLabel>
-                <Divider>Recipe Description</Divider>
-              </StepLabel>
-              <StepContent TransitionProps={{ unmountOnExit: false }}>
-                <TextField
-                  onChange={(e) => setDescription(e.target.value)}
-                  id="description-field"
-                  label="Description (Optional)"
-                  variant="outlined"
-                  multiline
-                  fullWidth
-                ></TextField>
-              </StepContent>
-            </Step>
-            <Step key={2} onClick={() => setActiveStep(2)}>
-              <StepLabel>
-                <Divider>Ingredients</Divider>
-              </StepLabel>
-              <StepContent TransitionProps={{ unmountOnExit: false }}>
-                <DndContext
-                  modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEndIngredient}
+                <Paper sx={{ p: 1 }} elevation={3}>
+                  <TextField
+                    onChange={(e) => setDescription(e.target.value)}
+                    id="description-field"
+                    label="Optional description"
+                    variant="standard"
+                    multiline
+                    fullWidth
+                  ></TextField>
+                </Paper>
+                <Stack direction={"row"} spacing={2}>
+                  <Paper sx={{ p: 1, width: "100%" }} elevation={3}>
+                    <TextField
+                      onChange={(e) => setServings(e.target.value)}
+                      id="servings-field"
+                      label="Servings"
+                      variant="standard"
+                      fullWidth
+                      type="number"
+                      inputProps={{
+                        min: 1,
+                        max: 100,
+                        step: 1,
+                      }}
+                    />
+                  </Paper>
+                  <Paper sx={{ p: 1, width: "100%" }} elevation={3}>
+                    <TextField
+                      onChange={(e) => setCookTime(e.target.value)}
+                      id="cook-time-field"
+                      label="Cook time"
+                      variant="standard"
+                      type="number"
+                      fullWidth
+                      inputProps={{
+                        min: 1,
+                        max: 100,
+                        step: 1,
+                      }}
+                    />
+                  </Paper>
+                </Stack>
+              </Stack>
+            </Paper>
+            <Divider />
+            <Paper>
+              <Typography variant="h4">Ingredients</Typography>
+              <DndContext
+                modifiers={[restrictToParentElement]}
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleIngredientsDragEnd}
+              >
+                <SortableContext
+                  items={ingredients}
+                  strategy={verticalListSortingStrategy}
                 >
-                  <SortableContext
-                    items={ingredients}
-                    strategy={verticalListSortingStrategy}
-                  >
+                  {" "}
+                  <Stack rowGap={1}>
                     {ingredients.map((ingredient) => (
-                      <SortableItem key={ingredient.id} id={ingredient.id} />
-                    ))}
-                  </SortableContext>
-                </DndContext>
-              </StepContent>
-            </Step>
-            <Step key={3} onClick={() => setActiveStep(3)}>
-              <StepLabel>
-                <Divider>Directions</Divider>
-              </StepLabel>
-              <StepContent TransitionProps={{ unmountOnExit: false }}>
-                <DndContext
-                  modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEndDirection}
-                >
-                  <SortableContext
-                    items={directions}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {directions.map((direction, index) => (
                       <SortableItem
-                        key={direction.id}
-                        id={direction.id}
-                        index={index}
-                        onRemove={() => handleRemoveDirection(direction.id)}
-                        label
-                        last={index === directions.length - 1}
+                        key={ingredient.id}
+                        id={ingredient.id}
+                        onRemove={() =>
+                          handleRemove(setIngredients, ingredient.id)
+                        }
+                        removable={ingredients.length > 1}
                       />
                     ))}
-                  </SortableContext>
-                </DndContext>
-
-                <IconButton onClick={handleAddDirection}>
-                  <AddCircleIcon />
-                </IconButton>
-              </StepContent>
-            </Step>
-          </Stepper>
+                  </Stack>
+                </SortableContext>
+              </DndContext>
+              <IconButton sx={{ m: "auto" }} onClick={handleAddIngredient}>
+                <AddCircleIcon />
+              </IconButton>
+            </Paper>
+            <Divider>Directions</Divider>
+            <DndContext
+              modifiers={[restrictToParentElement]}
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDirectionsDragEnd}
+            >
+              <SortableContext
+                items={directions}
+                strategy={verticalListSortingStrategy}
+              >
+                {directions.map((direction, index) => (
+                  <SortableItem
+                    key={direction.id}
+                    id={direction.id}
+                    index={index}
+                    onRemove={() => handleRemove(setDirections, direction.id)}
+                    label
+                    multiline
+                    removable={directions.length > 1}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+            <IconButton sx={{ m: "auto" }} onClick={handleAddDirection}>
+              <AddCircleIcon />
+            </IconButton>
+            <Divider>Notes</Divider>
+            <DndContext
+              modifiers={[restrictToParentElement]}
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleNotesDragEnd}
+            >
+              <SortableContext
+                items={notes}
+                strategy={verticalListSortingStrategy}
+              >
+                {notes.map((note) => (
+                  <SortableItem
+                    key={note.id}
+                    id={note.id}
+                    onRemove={() => handleRemove(setNotes, note.id)}
+                    removable
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+            <IconButton sx={{ m: "auto" }} onClick={handleAddNote}>
+              <AddCircleIcon />
+            </IconButton>
+            <Paper>
+              <Typography variant="h5" my={2}>
+                Image URL
+              </Typography>
+              <Paper sx={{ p: 1, mx: 1 }} elevation={3}>
+                <TextField
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  id="imageURL-field"
+                  type="url"
+                  label="Optional URL"
+                  variant="standard"
+                  fullWidth
+                ></TextField>
+              </Paper>
+            </Paper>
+          </Box>
         </>
       )}
     </>
